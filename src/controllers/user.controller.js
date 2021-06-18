@@ -14,7 +14,7 @@ const { CLIENT_URL } = process.env
 const userController = {
     register: async (req, res) => {
         try {
-            const {name, email, password} = req.body
+            const {name, username, email, password} = req.body
             
             if(!name || !email || !password)
                 return res.status(400).json({msg: "Please fill in all fields."})
@@ -31,7 +31,7 @@ const userController = {
             const passwordHash = await bcrypt.hash(password, 12)
 
             const newUser = {
-                name, email, password: passwordHash
+                name, username, email, password: passwordHash
             }
 
             const activation_token = createActivationToken(newUser)
@@ -50,13 +50,13 @@ const userController = {
             const {activation_token} = req.body
             const user = jwt.verify(activation_token, process.env.ACTIVATION_TOKEN_SECRET)
 
-            const {name, email, password} = user
+            const {name, username, email, password} = user
 
             const check = await Users.findOne({email})
             if(check) return res.status(400).json({msg:"This email already exists."})
 
             const newUser = new Users({
-                name, email, password
+                name, username, email, password
             })
 
             await newUser.save()
